@@ -17,7 +17,3 @@
     flex-direction: row;
     justify-content: unset;
 }
-
-.card {
-    z-index: -1;
-}

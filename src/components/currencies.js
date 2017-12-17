@@ -194,7 +194,7 @@ class Currencies extends React.Component {
 
                     <div className="form-group">
                         <label htmlFor="amount" className="sr-only">Amount</label>
-                        <input className="form-control" id="amount" type="decimal" placeholder="amount" value={this.state.amount} onChange={e => this.setState({ amount: Number(e.target.value) }) }/>
+                        <input className="form-control" id="amount" type="text" placeholder="amount" value={this.state.amount} onChange={e => this.setState({ amount: e.target.value }) }/>
                     </div>
 
                     <div className="form-group">
