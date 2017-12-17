@@ -1,0 +1,23 @@
+.form-group {
+    padding: 10px;
+}
+
+.ticker-row {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    padding: 10px;
+    justify-content: space-between;
+    border-bottom: 1px solid #dbdbdb;
+}
+
+.ticker-row div {
+    margin: 0 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: unset;
+}
+
+.card {
+    z-index: -1;
+}
