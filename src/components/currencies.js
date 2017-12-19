@@ -23,7 +23,7 @@ const shouldRender = (item, value) => {
         const search = `${item.name.toLowerCase()}${item.symbol.toLowerCase()}`;
         return search.includes(value.toLowerCase())
 
-    } catch(e) {
+    } catch (e) {
         console.log(item, value, e);
     }
     return false;
@@ -37,7 +37,7 @@ const renderItem = (item, active) => (
 );
 
 const renderMenu = (items, value, style) => (
-    <ul className="list-group" style={{...style, ...menuStyle}} children={items}/>
+    <ul className="list-group" style={{ ...style, ...menuStyle }} children={items} />
 );
 
 const localGet = (key) => {
@@ -52,7 +52,7 @@ const reduceBalance = (data, watching) => {
     return data.reduce((prev, curr) => {
         const w = watching.find(w => curr.symbol === w.symbol);
         if (w && w.amount) {
-            console.log('', w.amount, ' \t', curr.symbol, curr.price_sek,' \t', (w.amount * Number(curr.price_sek)).toFixed(2), 'SEK');
+            console.log('', w.amount, ' \t', curr.symbol, curr.price_sek, ' \t', (w.amount * Number(curr.price_sek)).toFixed(2), 'SEK');
             return {
                 ...prev,
                 [w.symbol]: (w.amount * Number(curr['price_' + (localGet('fiat').toLowerCase() || 'usd')])),
@@ -71,6 +71,7 @@ class Currencies extends React.Component {
         selected: '',
         amount: 1,
         watchers: [],
+        total: 0,
     }
 
     componentDidMount() {
@@ -96,12 +97,13 @@ class Currencies extends React.Component {
                 console.log('-------------------------------');
                 console.log(' total: \t', balances);
                 this.setState({
-                    watchers: this.state.watchers.map(w => ({ ...w, price: balances[w.symbol] }) )
+                    watchers: this.state.watchers.map(w => ({ ...w, price: balances[w.symbol] }))
                 })
+                this.setState({ total: balances.total });
             })
             .catch(function (error) {
-            console.log(error);
-          });
+                console.log(error);
+            });
 
     }
 
@@ -144,26 +146,43 @@ class Currencies extends React.Component {
     }
 
     renderWatchers = (items) => {
+        const fiat = localGet('fiat');
         return (
-            <div className="" >
-                {
-                    this.state.watchers.map(item => (
-                        <div className="ticker-row" key={item.symbol}>
-                            <div>
-                                <div>{item.amount}</div>
-                                <div>{item.symbol}</div>
-                                <div>{Number(item.price).toFixed(2)}</div>
-                            </div>
-                            <button
-                                onClick={() => this.removeWatcher(item.symbol)}
-                                className="btn btn-danger btn-sm"
-                            >
-                                remove
-                            </button>
+            <table className="table table-striped">
+                <thead className="thead-dark">
+                    <tr>
+                        <th scope="col">€</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">price/amount</th>
+                        <th scope="col">x</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {
+                        this.state.watchers.map(item => (
+                            <tr key={item.symbol}>
+                                <td>{item.symbol}</td>
+                                <td>{item.amount}</td>
+                                <td>{`${Number(item.price).toFixed(2)} ${fiat}`}</td>
+                                <td>
+                                    <button
+                                        onClick={() => this.removeWatcher(item.symbol)}
+                                        className="btn btn-danger btn-sm"
+                                    >
+                                        remove
+                                    </button>
+                                </td>
+                            </tr>
+                        ))
+                    }
+                    {
+                        this.state.watchers.length &&
+                        <div className="ticker-row" key="total">
+                            <div>{`total: ${Number(this.state.total).toFixed(2)} ${fiat}`}</div>
                         </div>
-                    ))
-                }
-            </div>
+                    }
+                </tbody>
+            </table>
         );
     }
 
@@ -179,22 +198,22 @@ class Currencies extends React.Component {
                 <form className="form-inline" onSubmit={e => e.preventDefault()}>
 
                     <Autocomplete
-                        wrapperProps={{ className: 'form-group'}}
+                        wrapperProps={{ className: 'form-group' }}
                         wrapperStyle={{}}
-                        shouldItemRender={ shouldRender }
-                        getItemValue={item => item.symbol }
-                        items={ autocompleteItems }
-                        renderItem={ renderItem }
-                        renderMenu={ renderMenu }
-                        inputProps={ inputProps }
-                        value={ this.state.value }
-                        onChange={e => this.setState({ value: e.target.value }) }
-                        onSelect={val => this.setState({ value: val, selected: val }) }
+                        shouldItemRender={shouldRender}
+                        getItemValue={item => item.symbol}
+                        items={autocompleteItems}
+                        renderItem={renderItem}
+                        renderMenu={renderMenu}
+                        inputProps={inputProps}
+                        value={this.state.value}
+                        onChange={e => this.setState({ value: e.target.value })}
+                        onSelect={val => this.setState({ value: val, selected: val })}
                     />
 
                     <div className="form-group">
                         <label htmlFor="amount" className="sr-only">Amount</label>
-                        <input className="form-control" id="amount" type="text" placeholder="amount" value={this.state.amount} onChange={e => this.setState({ amount: e.target.value }) }/>
+                        <input className="form-control" id="amount" type="text" placeholder="amount" value={this.state.amount} onChange={e => this.setState({ amount: e.target.value })} />
                     </div>
 
                     <div className="form-group">
@@ -206,7 +225,7 @@ class Currencies extends React.Component {
 
                     </div>
                 </form>
-                { this.state.watchers.length && this.renderWatchers(this.state.watchers) }
+                {this.state.watchers.length && this.renderWatchers(this.state.watchers)}
             </div>
 
         );

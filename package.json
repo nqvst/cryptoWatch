@@ -9,7 +9,7 @@
     "react-dom": "^16.2.0",
     "react-scripts": "1.0.17"
   },
-  "homepage" : "http://nqvst.github.io/cryptoWatch",
+  "homepage": "http://nqvst.github.io/cryptoWatch",
   "scripts": {
     "deploy": "gh-pages -d build",
     "start": "react-scripts start",
