@@ -15,8 +15,8 @@ class App extends Component {
     render() {
         return (
             <div className="App">
-                <header className="">
-                    <nav className="navbar navbar-dark bg-primary">
+                <header>
+                    <nav className="navbar navbar-dark bg-dark">
                         <h1 className="navbar-brand">Crypto Watch</h1>
                     </nav>
                 </header>

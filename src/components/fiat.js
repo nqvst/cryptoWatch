@@ -46,10 +46,13 @@ export default class Fiat extends React.Component {
         }
     }
 
-    renderButtons (currencyList, selected) {
-        return currencyList.map(currency => (
+    renderButtons (currencyList, selected = 'USD') {
+        return [
+            selected,
+            ...currencyList.filter((c => c !== selected))
+        ].map(currency => (
             <li key={currency}>
-                <button type="button" className={`btn btn-sm ${currency === selected ? 'btn-success': 'btn-light'}`} onClick={this.fiatClickHandler.bind(this)}>
+                <button type="button" className={`btn ${currency === selected ? 'btn-success': 'btn-light'}`} onClick={this.fiatClickHandler.bind(this)}>
                     {currency}
                 </button>
             </li>

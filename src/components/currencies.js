@@ -48,6 +48,10 @@ const localSet = (key, value) => {
     window.localStorage.setItem(key, value);
 };
 
+const localRemove = (key) => {
+    window.localStorage.removeItem(key);
+}
+
 const reduceBalance = (data, watching) => {
     return data.reduce((prev, curr) => {
         const w = watching.find(w => curr.symbol === w.symbol);
@@ -55,7 +59,7 @@ const reduceBalance = (data, watching) => {
             console.log('', w.amount, ' \t', curr.symbol, curr.price_sek, ' \t', (w.amount * Number(curr.price_sek)).toFixed(2), 'SEK');
             return {
                 ...prev,
-                [w.symbol]: (w.amount * Number(curr['price_' + (localGet('fiat').toLowerCase() || 'usd')])),
+                [w.symbol]: (Number(curr['price_' + (localGet('fiat').toLowerCase() || 'usd')])),
                 total: prev.total + (w.amount * Number(curr['price_' + (localGet('fiat').toLowerCase() || 'usd')])),
             }
         }
@@ -63,6 +67,12 @@ const reduceBalance = (data, watching) => {
     }, { total: 0 });
 }
 
+const reduceBalance2 = (data, watching) => {
+    console.log(data)
+    return data.filter((w) => {
+        return watching.find(a => a.symbol === w.symbol);
+    });
+}
 
 class Currencies extends React.Component {
 
@@ -93,11 +103,10 @@ class Currencies extends React.Component {
 
         const currentPrices = axios.get(TICKER_URL, options)
             .then(resp => {
-                const balances = reduceBalance(resp.data, this.state.watchers);
-                console.log('-------------------------------');
-                console.log(' total: \t', balances);
+                const balances = reduceBalance2(resp.data, this.state.watchers);
+
                 this.setState({
-                    watchers: this.state.watchers.map(w => ({ ...w, price: balances[w.symbol] }))
+                    watchers: balances,
                 })
                 this.setState({ total: balances.total });
             })
@@ -107,12 +116,29 @@ class Currencies extends React.Component {
 
     }
 
-    addWatcher = (symbol, amount) => {
+    getWatchingFromStorage = () => {
         const watching = localGet('watching');
-        let currentlyWatching = [];
-        if (watching) {
-            currentlyWatching = JSON.parse(watching);
+        if (!watching)  {
+            return [];
         }
+
+        try {
+            return JSON.parse(watching);
+        } catch(e) {
+            e.printStacktrace();
+            return [];
+        }
+    }
+
+    clearForm = () => {
+        this.setState({
+            value: '',
+            amount: 1
+        });
+    }
+
+    addWatcher = (symbol, amount) => {
+        let currentlyWatching = this.getWatchingFromStorage();
 
         const watchers = [
             ...currentlyWatching,
@@ -123,26 +149,41 @@ class Currencies extends React.Component {
             }
         ];
 
-        this.setState({ value: '' });
+        this.clearForm();
         this.updateLocalStorage(watchers);
-        this.setState({ watchers })
+        this.setState({ watchers });
+        this.fetchPrices();
     }
 
     removeWatcher = (symbol) => {
         const watchers = this.state.watchers.filter(i => i.symbol !== symbol);
-        this.setState({
-            watchers,
-        })
+        this.setState({ watchers })
         this.updateLocalStorage(watchers);
     }
 
     updateLocalStorage = (watchers) => {
-
-        console.log(this.state.watchers);
-        console.log(watchers);
-
-        window.localStorage.removeItem('watching');
+        localRemove('watching');
         localSet('watching', JSON.stringify(watchers));
+    }
+
+    renderRow = (item) => {
+        const fiat = localGet('fiat');
+        console.log(item)
+        return (
+            <tr key={item.symbol}>
+                <td>{item.symbol}</td>
+                <td>{item.amount}</td>
+                <td>{`${Number(item.price).toFixed(2)} ${fiat}`}</td>
+                <td>
+                    <button
+                        onClick={() => this.removeWatcher(item.symbol)}
+                        className="btn btn-danger btn-sm"
+                    >
+                        remove
+                    </button>
+                </td>
+            </tr>
+        );
     }
 
     renderWatchers = (items) => {
@@ -158,28 +199,12 @@ class Currencies extends React.Component {
                     </tr>
                 </thead>
                 <tbody>
-                    {
-                        this.state.watchers.map(item => (
-                            <tr key={item.symbol}>
-                                <td>{item.symbol}</td>
-                                <td>{item.amount}</td>
-                                <td>{`${Number(item.price).toFixed(2)} ${fiat}`}</td>
-                                <td>
-                                    <button
-                                        onClick={() => this.removeWatcher(item.symbol)}
-                                        className="btn btn-danger btn-sm"
-                                    >
-                                        remove
-                                    </button>
-                                </td>
-                            </tr>
-                        ))
-                    }
+                    { this.state.watchers.map(this.renderRow) }
                     {
                         this.state.watchers.length &&
-                        <div className="ticker-row" key="total">
-                            <div>{`total: ${Number(this.state.total).toFixed(2)} ${fiat}`}</div>
-                        </div>
+                            <div className="ticker-row" key="total">
+                                <div>{`total: ${Number(this.state.total).toFixed(2)} ${fiat}`}</div>
+                            </div>
                     }
                 </tbody>
             </table>
