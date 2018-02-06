@@ -42,7 +42,7 @@ export default class Fiat extends React.Component {
         super(props);
 
         this.state = {
-            selected: '',
+            selected: 'USD',
         }
     }
 
