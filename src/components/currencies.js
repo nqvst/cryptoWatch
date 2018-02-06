@@ -55,8 +55,8 @@ const reduceBalance = (data, watching) => {
             console.log('', w.amount, ' \t', curr.symbol, curr.price_sek, ' \t', (w.amount * Number(curr.price_sek)).toFixed(2), 'SEK');
             return {
                 ...prev,
-                [w.symbol]: (w.amount * Number(curr['price_' + (localGet('fiat').toLowerCase() || 'usd')])),
-                total: prev.total + (w.amount * Number(curr['price_' + (localGet('fiat').toLowerCase() || 'usd')])),
+                [w.symbol]: (w.amount * Number(curr['price_' + (localGet('fiat') || 'usd').toLowerCase()])),
+                total: prev.total + (w.amount * Number(curr['price_' + (localGet('fiat') || 'usd').toLowerCase()])),
             }
         }
         return prev
@@ -146,7 +146,7 @@ class Currencies extends React.Component {
     }
 
     renderWatchers = (items) => {
-        const fiat = localGet('fiat');
+        const fiat = localGet('fiat') || 'USD';
         return (
             <table className="table table-striped">
                 <thead className="thead-dark">
