@@ -125,7 +125,8 @@ class Currencies extends React.Component {
 
         this.setState({ value: '' });
         this.updateLocalStorage(watchers);
-        this.setState({ watchers })
+        this.setState({ watchers });
+        document.location.reload(); // todo, get your shit together (spend more than 1 minutes refactoring)
     }
 
     removeWatcher = (symbol) => {
@@ -196,7 +197,6 @@ class Currencies extends React.Component {
         return (
             <div>
                 <form className="form-inline" onSubmit={e => e.preventDefault()}>
-
                     <Autocomplete
                         wrapperProps={{ className: 'form-group' }}
                         wrapperStyle={{}}

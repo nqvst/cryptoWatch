@@ -73,6 +73,10 @@ export default class Fiat extends React.Component {
     }
 
     render() {
+        if (!window.localStorage.getItem('fiat')) {
+            window.localStorage.setItem('fiat', 'USD');
+        }
+
         const { selected } = this.state;
         return (
             <div className="fiat-container card">
