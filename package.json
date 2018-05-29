@@ -9,7 +9,7 @@
     "react-dom": "^16.2.0",
     "react-scripts": "1.0.17"
   },
-  "homepage": "crypto-watch.netlify.com",
+  "homepage": "https://crypto-watch.netlify.com/",
   "scripts": {
     "deploy": "gh-pages -d build",
     "start": "react-scripts start",
